@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Inicio</title>
+    <link rel="stylesheet" href="../css/index.css" />
+</head>
+<body>
+    <main class="login-container">
+        <section class="left-panel">
+            <h1 class="brand">FACTORA POS</h1>
+            <p class="subtitle">Sistema integrado de gestión</p>
+            <ul class="features">
+                <li>Control de inventario</li>
+                <li>Ventas y compras</li>
+                <li>Trazabilidad por número de serie</li>
+            </ul>
+        </section>
+
+        <section class="right-panel">
+            <h2>Iniciar sesión</h2>
+            <div id="alertContainer" class="alert-container" aria-live="polite"></div>
+
+            <form id="loginForm" class="form">
+                <label>Usuario
+                    <input id="username" name="username" type="text" required />
+                </label>
+
+                <label>Contraseña
+                    <input id="password" name="password" type="password" required />
+                </label>
+
+                <div class="controls">
+                    <label><input id="rememberMe" type="checkbox" /> Recordar</label>
+                    <button type="submit" class="btn">Entrar</button>
+                </div>
+            </form>
+
+            
+        </section>
+    </main>
+
+    <script src="../js/index.js"></script>
+</body>
+</html>

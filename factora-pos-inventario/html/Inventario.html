@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Inventario</title>
+    <link rel="stylesheet" href="../css/Inventario.css" />
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+            
+            <div class="menu-section">Operaciones</div>
+            <a href="#" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+            <a href="#" class="menu-item active">
+                <i>📦</i> Inventario
+            </a>
+            <a href="#" class="menu-item">
+                <i>📥</i> Compras
+            </a>
+            <a href="#" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+            <a href="#" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+            <a href="#" class="menu-item">
+                <i>📈</i> Reportes
+            </a>
+            <a href="#" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+            <a href="#" class="menu-item">
+                <i>📋</i> Movimientos
+            </a>
+
+            <div class="menu-section">Configuración</div>
+            <a href="#" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+            <a href="#" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" id="globalSearch" placeholder="Buscar productos por nombre, SKU o código de serie...">
+        </div>
+
+        <div class="header-actions">
+            <div class="user-profile">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                    <div style="font-size: 12px; color: #64748b;">Administrador</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Gestión de Inventario</div>
+                <div class="page-subtitle">Administra productos, stock y números de serie</div>
+            </div>
+            <button class="btn-primary" onclick="openModal(false)">
+                ➕ Nuevo Producto
+            </button>
+        </div>
+
+        <!-- Mini Stats -->
+        <div class="stats-mini">
+            <div class="stat-mini-card primary">
+                <div class="stat-mini-info">
+                    <h4 id="totalProducts">156</h4>
+                    <p>Total Productos</p>
+                </div>
+                <div class="stat-mini-icon">📦</div>
+            </div>
+
+            <div class="stat-mini-card success">
+                <div class="stat-mini-info">
+                    <h4>$45.2M</h4>
+                    <p>Valor Inventario</p>
+                </div>
+                <div class="stat-mini-icon">💰</div>
+            </div>
+
+            <div class="stat-mini-card warning">
+                <div class="stat-mini-info">
+                    <h4>23</h4>
+                    <p>Stock Bajo</p>
+                </div>
+                <div class="stat-mini-icon">⚠️</div>
+            </div>
+
+            <div class="stat-mini-card danger">
+                <div class="stat-mini-info">
+                    <h4>5</h4>
+                    <p>Agotados</p>
+                </div>
+                <div class="stat-mini-icon">🚫</div>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="search-filter">
+                <input type="text" id="searchProducts" placeholder="🔍 Buscar productos...">
+            </div>
+
+            <div class="filter-group">
+                <button class="btn-filter active" data-filter="all">Todos</button>
+                <button class="btn-filter" data-filter="disponible">Disponibles</button>
+                <button class="btn-filter" data-filter="bajo">Stock Bajo</button>
+                <button class="btn-filter" data-filter="agotado">Agotados</button>
+            </div>
+
+            <select class="btn-filter" id="categoryFilter">
+                <option value="">Todas las categorías</option>
+                <option value="notebooks">Notebooks</option>
+                <option value="perifericos">Periféricos</option>
+                <option value="monitores">Monitores</option>
+                <option value="almacenamiento">Almacenamiento</option>
+                <option value="componentes">Componentes</option>
+            </select>
+        </div>
+
+        <!-- Products Table -->
+        <div class="products-container">
+            <div class="products-header">
+                <h3>Listado de Productos (<span id="productCount">0</span>)</h3>
+                <div class="view-toggle">
+                    <button class="view-btn active">📋</button>
+                    <button class="view-btn">🎴</button>
+                </div>
+            </div>
+
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Serie</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Products will be inserted here -->
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <button id="prevPage">← Anterior</button>
+                <span id="pageInfo">Página 1 de 1</span>
+                <button id="nextPage">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit Product -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Producto</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Nombre del Producto *</label>
+                            <input type="text" id="productName" name="productName" required placeholder="Ej: Notebook Asus ROG Strix G15">
+                        </div>
+
+                        <div class="form-group">
+                            <label>SKU *</label>
+                            <input type="text" id="productSKU" name="productSKU" required placeholder="Ej: NB-ASUS-001">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Categoría *</label>
+                            <select id="productCategory" name="productCategory" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="notebooks">Notebooks</option>
+                                <option value="perifericos">Periféricos</option>
+                                <option value="monitores">Monitores</option>
+                                <option value="almacenamiento">Almacenamiento</option>
+                                <option value="componentes">Componentes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Marca *</label>
+                            <input type="text" id="productBrand" name="productBrand" required placeholder="Ej: Asus">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Precio de Compra ($) *</label>
+                            <input type="number" id="productCostPrice" name="productCostPrice" required placeholder="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Precio de Venta ($) *</label>
+                            <input type="number" id="productSalePrice" name="productSalePrice" required placeholder="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stock Actual</label>
+                            <input type="number" id="productStock" name="productStock" value="0" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stock Mínimo</label>
+                            <input type="number" id="productMinStock" name="productMinStock" value="5" min="0">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Descripción</label>
+                            <textarea id="productDescription" name="productDescription" placeholder="Descripción detallada del producto..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="requiresSerial" name="requiresSerial">
+                                <label style="margin: 0;">Este producto requiere número de serie (trazabilidad)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/Inventario.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Dashboard</title>
+    <link rel="stylesheet" href="../css/dashboard.css" />
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active">
+                <i>📊</i> Dashboard
+            </a>
+            
+            <div class="menu-section">Operaciones</div>
+            <a href="#" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+            <a href="Inventario.html" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+            <a href="#" class="menu-item">
+                <i>📥</i> Compras
+            </a>
+            <a href="#" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+            <a href="#" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+            <a href="#" class="menu-item">
+                <i>📈</i> Reportes
+            </a>
+            <a href="#" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+            <a href="#" class="menu-item">
+                <i>📋</i> Movimientos
+            </a>
+
+            <div class="menu-section">Configuración</div>
+            <a href="#" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+            <a href="#" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos, clientes, facturas...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span style="font-size: 20px; cursor: pointer;">🔔</span>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">A</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                    <div style="font-size: 12px; color: #64748b;">Administrador</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Bienvenido de vuelta, aquí está tu resumen de hoy</div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-title">Ventas del Día</div>
+                        <div class="stat-value">$2,847,500</div>
+                        <div class="stat-change positive">
+                            ↑ 12.5% vs ayer
+                        </div>
+                    </div>
+                    <div class="stat-icon">💰</div>
+                </div>
+            </div>
+
+            <div class="stat-card success">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-title">Productos Vendidos</div>
+                        <div class="stat-value">247</div>
+                        <div class="stat-change positive">
+                            ↑ 8.2% vs ayer
+                        </div>
+                    </div>
+                    <div class="stat-icon">📦</div>
+                </div>
+            </div>
+
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-title">Valor Inventario</div>
+                        <div class="stat-value">$45.2M</div>
+                        <div class="stat-change positive">
+                            ↑ 3.1% vs semana
+                        </div>
+                    </div>
+                    <div class="stat-icon">📊</div>
+                </div>
+            </div>
+
+            <div class="stat-card danger">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-title">Stock Bajo</div>
+                        <div class="stat-value">23</div>
+                        <div class="stat-change negative">
+                            Requiere atención
+                        </div>
+                    </div>
+                    <div class="stat-icon">⚠️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Ventas de los Últimos 7 Días</div>
+                    <div class="chart-actions">
+                        <button class="btn-chart-filter active">7 días</button>
+                        <button class="btn-chart-filter">30 días</button>
+                        <button class="btn-chart-filter">3 meses</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Actividad Reciente</div>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon sale">✓</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Venta #VT-2045</div>
+                            <div class="activity-description">Notebook Asus ROG - $1,299,990</div>
+                            <div class="activity-time">Hace 5 minutos</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon purchase">📥</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Compra #CP-1892</div>
+                            <div class="activity-description">20 Mouse Logitech G502</div>
+                            <div class="activity-time">Hace 1 hora</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon alert">⚠️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Stock Bajo</div>
+                            <div class="activity-description">SSD Samsung 1TB - 5 unidades</div>
+                            <div class="activity-time">Hace 2 horas</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon sale">✓</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Venta #VT-2044</div>
+                            <div class="activity-description">Monitor LG 27" 4K - $349,990</div>
+                            <div class="activity-time">Hace 3 horas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products Table -->
+        <div class="table-card">
+            <div class="chart-header" style="margin-bottom: 20px;">
+                <div class="chart-title">Productos Más Vendidos</div>
+                <button class="btn-chart-filter">Ver todos</button>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Categoría</th>
+                        <th>Vendidos</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Ingresos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Notebook Asus ROG Strix G15</strong></td>
+                        <td>NB-ASUS-001</td>
+                        <td>Notebooks</td>
+                        <td>45</td>
+                        <td>12</td>
+                        <td><span class="badge-status active">Disponible</span></td>
+                        <td><strong>$58,499,550</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mouse Logitech G502 Hero</strong></td>
+                        <td>MS-LOG-502</td>
+                        <td>Periféricos</td>
+                        <td>38</td>
+                        <td>5</td>
+                        <td><span class="badge-status low">Stock Bajo</span></td>
+                        <td>$2,279,620</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitor LG UltraGear 27"</strong></td>
+                        <td>MN-LG-27UG</td>
+                        <td>Monitores</td>
+                        <td>32</td>
+                        <td>18</td>
+                        <td><span class="badge-status active">Disponible</span></td>
+                        <td>$11,199,680</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SSD Samsung 980 PRO 1TB</strong></td>
+                        <td>SSD-SAM-1TB</td>
+                        <td>Almacenamiento</td>
+                        <td>28</td>
+                        <td>8</td>
+                        <td><span class="badge-status medium">Stock Medio</span></td>
+                        <td>$4,479,720</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Teclado Mecánico Razer</strong></td>
+                        <td>KB-RAZ-BW</td>
+                        <td>Periféricos</td>
+                        <td>25</td>
+                        <td>15</td>
+                        <td><span class="badge-status active">Disponible</span></td>
+                        <td>$2,999,750</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

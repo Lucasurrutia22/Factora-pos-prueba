@@ -1,0 +1,22 @@
+{
+  "name": "factora-pos-inventario",
+  "version": "1.0.0",
+  "description": "Inventory management system for FACTORA POS.",
+  "main": "Inventario.js",
+  "scripts": {
+    "start": "live-server .",
+    "build": "echo 'Build step not defined'",
+    "test": "echo 'Test step not defined'"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "live-server": "^1.2.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "inventory",
+    "management",
+    "POS"
+  ]
+}
