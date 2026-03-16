@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Compras - Eliminado</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+</head>
+<body>
+
+    <div class="main-content" style="margin-left: 260px; margin-top: 70px; padding: 30px;">
+        <div class="page-title">Módulo Compras - Eliminado</div>
+
+        <div class="page-subtitle">
+            El módulo de Compras fue removido. Serás redirigido al Dashboard automáticamente.
+        </div>
+
+        <p style="margin-top: 15px;">
+            Si deseas restaurarlo, recupera el backup o solicita que lo vuelva a crear.
+        </p>
+
+        <p style="margin-top: 10px;">
+            <a href="{% url 'dashboard' %}" class="btn-primary">Ir al Dashboard ahora</a>
+        </p>
+    </div>
+
+    <script>
+        // Redirigir al dashboard después de 2 segundos
+        setTimeout(function() {
+            window.location.href = "{% url 'dashboard' %}";
+        }, 2000);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Usuarios</title>
+
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+
+            <div class="menu-section">Operaciones</div>
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+            <a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+            <a href="{% url 'usuarios' %}" class="menu-item active">
+                <i>👤</i> Usuarios
+            </a>
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos, clientes, facturas...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 24px; cursor: pointer; display: inline-block; line-height: 1;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+                    <a href="{% url 'config' %}" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">Usuarios</div>
+        <div class="page-subtitle">Administra los usuarios del sistema</div>
+
+        <!-- Formulario Nuevo Usuario -->
+        <div class="table-card" style="margin-bottom: 20px;">
+            <div class="chart-header" style="margin-bottom: 20px;">
+                <div class="chart-title">Nuevo Usuario</div>
+            </div>
+
+            <form id="userForm" onsubmit="handleUserSubmit(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="userName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="userUsername" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="userPassword" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select id="userRole" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="admin">Administrador</option>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="bodega">Bodega</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="userStatus" required>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 15px;">Crear Usuario</button>
+            </form>
+        </div>
+
+        <!-- Lista de Usuarios -->
+        <div class="table-card">
+            <div class="chart-header">
+                <div class="chart-title">Usuarios Registrados</div>
+            </div>
+
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Última Conexión</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="usersTableBody">
+                    <tr><td colspan="8" style="text-align: center;">Cargando usuarios...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+    </script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/usuarios.js' %}?v={% now 'U' %}"></script>
+
+</body>
+</html>

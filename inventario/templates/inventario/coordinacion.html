@@ -1,0 +1,930 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Coordinación Logística</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/Inventario.css' %}">
+    
+    <style>
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .solicitud-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .solicitud-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .solicitud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .solicitud-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-PENDIENTE { background: #fef3c7; color: #92400e; }
+        .status-EN_PROCESO { background: #dbeafe; color: #1e40af; }
+        .status-COMPLETADA { background: #d1fae5; color: #065f46; }
+        .status-CANCELADA { background: #fee2e2; color: #991b1b; }
+        .status-ON_HOLD { background: #e0e7ff; color: #3730a3; }
+
+        .solicitud-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .solicitud-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view { background: #f1f5f9; color: #475569; }
+        .btn-edit { background: #dbeafe; color: #1e40af; }
+        .btn-complete { background: #d1fae5; color: #065f46; }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            background: #5a67d8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+            
+            <div class="menu-section">Operaciones</div>
+
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+
+            <a href="{% url 'coordinacion_logistica' %}" class="menu-item active">
+                <i>🚚</i> Coordinación Logística
+            </a>
+
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+
+<a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+
+            <a href="{% url 'usuarios' %}" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" id="globalSearch" placeholder="Buscar solicitudes por número, cliente o sucursal...">
+        </div>
+
+        <div class="header-actions">
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Coordinación Logística</div>
+                <div class="page-subtitle">Gestión de solicitudes de instalación y coordinación técnica</div>
+            </div>
+            <button class="btn-primary" onclick="abrirModalNuevaSolicitud()">
+                ➕ Nueva Solicitud
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="cambiarTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="cambiarTab('solicitudes')">📋 Solicitudes</button>
+            <button class="tab-btn" onclick="cambiarTab('clientes')">👥 Clientes</button>
+            <button class="tab-btn" onclick="cambiarTab('tecnicos')">🔧 Técnicos</button>
+            <button class="tab-btn" onclick="cambiarTab('equipos')">📦 Equipos</button>
+        </div>
+
+        <!-- Tab: Dashboard -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Solicitudes Totales</span>
+                        <span class="stat-icon">📋</span>
+                    </div>
+                    <div class="stat-value" id="stat-total">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Pendientes</span>
+                        <span class="stat-icon">⏳</span>
+                    </div>
+                    <div class="stat-value" id="stat-pendientes">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">En Proceso</span>
+                        <span class="stat-icon">🔄</span>
+                    </div>
+                    <div class="stat-value" id="stat-proceso">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Completadas</span>
+                        <span class="stat-icon">✅</span>
+                    </div>
+                    <div class="stat-value" id="stat-completadas">0</div>
+                </div>
+            </div>
+
+            <div class="solicitud-card">
+                <h3 style="margin-bottom: 20px;">Solicitudes Recientes</h3>
+                <div id="solicitudes-recientes"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Solicitudes -->
+        <div id="tab-solicitudes" class="tab-content">
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label>Estado</label>
+                    <select id="filtro-estado" onchange="cargarSolicitudes()">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="EN_PROCESO">En Proceso</option>
+                        <option value="COMPLETADA">Completada</option>
+                        <option value="CANCELADA">Cancelada</option>
+                        <option value="ON_HOLD">En Espera</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label>Cliente</label>
+                    <select id="filtro-cliente" onchange="cargarSolicitudes()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label>Técnico Asignado</label>
+                    <select id="filtro-tecnico" onchange="cargarSolicitudes()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label>Buscar</label>
+                    <input type="text" id="filtro-buscar" placeholder="Número de solicitud..." oninput="cargarSolicitudes()">
+                </div>
+            </div>
+
+            <div id="lista-solicitudes"></div>
+        </div>
+
+        <!-- Tab: Clientes -->
+        <div id="tab-clientes" class="tab-content">
+            <div id="lista-clientes"></div>
+        </div>
+
+        <!-- Tab: Técnicos -->
+        <div id="tab-tecnicos" class="tab-content">
+            <div id="lista-tecnicos"></div>
+        </div>
+
+        <!-- Tab: Equipos -->
+        <div id="tab-equipos" class="tab-content">
+            <div id="lista-equipos"></div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Solicitud -->
+    <div id="modal-nueva-solicitud" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nueva Solicitud de Instalación</h2>
+                <button class="close-modal" onclick="cerrarModalNuevaSolicitud()">✕</button>
+            </div>
+
+            <form id="form-nueva-solicitud" onsubmit="crearSolicitud(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Cliente *</label>
+                        <select id="solicitud-cliente" class="form-select" required>
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Sucursal *</label>
+                        <select id="solicitud-sucursal" class="form-select" required>
+                            <option value="">Seleccionar sucursal...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Equipo *</label>
+                        <select id="solicitud-tipo-equipo" class="form-select" required>
+                            <option value="">Seleccionar tipo...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cantidad *</label>
+                        <input type="number" id="solicitud-cantidad" class="form-input" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Fecha Solicitada *</label>
+                        <input type="date" id="solicitud-fecha" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Prioridad *</label>
+                        <select id="solicitud-prioridad" class="form-select" required>
+                            <option value="NORMAL">Normal</option>
+                            <option value="ALTA">Alta</option>
+                            <option value="URGENTE">Urgente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Observaciones</label>
+                        <textarea id="solicitud-observaciones" class="form-textarea" placeholder="Detalles adicionales..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModalNuevaSolicitud()">Cancelar</button>
+                    <button type="submit" class="btn-submit">Crear Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Detalle Solicitud -->
+    <div id="modal-detalle-solicitud" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalle de Solicitud</h2>
+                <button class="close-modal" onclick="cerrarModalDetalle()">✕</button>
+            </div>
+            <div id="contenido-detalle"></div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        let solicitudesData = [];
+        let clientesData = [];
+        let sucursalesData = [];
+        let tecnicosData = [];
+        let tiposEquipoData = [];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatosIniciales();
+        });
+
+        async function cargarDatosIniciales() {
+            try {
+                // Cargar todas las listas necesarias
+                await Promise.all([
+                    cargarClientes(),
+                    cargarTecnicos(),
+                    cargarTiposEquipo(),
+                    cargarEstadisticas(),
+                    cargarSolicitudes()
+                ]);
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                mostrarError('Error cargando datos iniciales');
+            }
+        }
+
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/coordinacion/dashboard/stats/');
+                const data = await response.json();
+                
+                document.getElementById('stat-total').textContent = data.total_solicitudes;
+                document.getElementById('stat-pendientes').textContent = data.pendientes;
+                document.getElementById('stat-proceso').textContent = data.en_proceso;
+                document.getElementById('stat-completadas').textContent = data.completadas;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        async function cargarSolicitudes() {
+            try {
+                const estado = document.getElementById('filtro-estado')?.value || '';
+                const cliente = document.getElementById('filtro-cliente')?.value || '';
+                const tecnico = document.getElementById('filtro-tecnico')?.value || '';
+                const buscar = document.getElementById('filtro-buscar')?.value || '';
+
+                let url = '/api/coordinacion/solicitudes/?';
+                if (estado) url += `estado=${estado}&`;
+                if (cliente) url += `cliente=${cliente}&`;
+                if (tecnico) url += `tecnico=${tecnico}&`;
+                if (buscar) url += `search=${buscar}&`;
+
+                const response = await fetch(url);
+                solicitudesData = await response.json();
+                
+                renderizarSolicitudes(solicitudesData);
+                renderizarSolicitudesRecientes(solicitudesData.slice(0, 5));
+            } catch (error) {
+                console.error('Error cargando solicitudes:', error);
+                mostrarError('Error cargando solicitudes');
+            }
+        }
+
+        function renderizarSolicitudes(solicitudes) {
+            const container = document.getElementById('lista-solicitudes');
+            
+            if (solicitudes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">No hay solicitudes para mostrar</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = solicitudes.map(sol => `
+                <div class="solicitud-card">
+                    <div class="solicitud-header">
+                        <div>
+                            <div class="solicitud-number">#${sol.numero_solicitud}</div>
+                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">
+                                ${sol.cliente_nombre} - ${sol.sucursal_nombre}
+                            </div>
+                        </div>
+                        <span class="status-badge status-${sol.estado}">${sol.estado_display}</span>
+                    </div>
+
+                    <div class="solicitud-info">
+                        <div class="info-item">
+                            <span class="info-label">Tipo de Equipo</span>
+                            <span class="info-value">${sol.tipo_equipo_nombre}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cantidad</span>
+                            <span class="info-value">${sol.cantidad_equipos}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Fecha Solicitada</span>
+                            <span class="info-value">${formatearFecha(sol.fecha_solicitada)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Técnico</span>
+                            <span class="info-value">${sol.tecnico_asignado || 'Sin asignar'}</span>
+                        </div>
+                    </div>
+
+                    <div class="solicitud-actions">
+                        <button class="btn-action btn-view" onclick="verDetalleSolicitud(${sol.id})">
+                            👁️ Ver Detalle
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editarSolicitud(${sol.id})">
+                            ✏️ Editar
+                        </button>
+                        ${sol.estado === 'EN_PROCESO' ? `
+                            <button class="btn-action btn-complete" onclick="completarSolicitud(${sol.id})">
+                                ✅ Completar
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderizarSolicitudesRecientes(solicitudes) {
+            const container = document.getElementById('solicitudes-recientes');
+            
+            if (solicitudes.length === 0) {
+                container.innerHTML = '<p style="color: #64748b;">No hay solicitudes recientes</p>';
+                return;
+            }
+
+            container.innerHTML = solicitudes.map(sol => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>#${sol.numero_solicitud}</strong> - ${sol.cliente_nombre}
+                    </div>
+                    <span class="status-badge status-${sol.estado}">${sol.estado_display}</span>
+                </div>
+            `).join('');
+        }
+
+        async function cargarClientes() {
+            try {
+                const response = await fetch('/api/coordinacion/clientes/');
+                clientesData = await response.json();
+                
+                const select1 = document.getElementById('solicitud-cliente');
+                const select2 = document.getElementById('filtro-cliente');
+                
+                const options = clientesData.map(c => 
+                    `<option value="${c.id}">${c.nombre}</option>`
+                ).join('');
+                
+                if (select1) select1.innerHTML += options;
+                if (select2) select2.innerHTML += options;
+            } catch (error) {
+                console.error('Error cargando clientes:', error);
+            }
+        }
+
+        async function cargarTecnicos() {
+            try {
+                const response = await fetch('/api/coordinacion/tecnicos/');
+                tecnicosData = await response.json();
+                
+                const select = document.getElementById('filtro-tecnico');
+                if (select) {
+                    select.innerHTML += tecnicosData.map(t => 
+                        `<option value="${t.id}">${t.nombre}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error('Error cargando técnicos:', error);
+            }
+        }
+
+        async function cargarTiposEquipo() {
+            try {
+                const response = await fetch('/api/coordinacion/tipos-equipo/');
+                tiposEquipoData = await response.json();
+                
+                const select = document.getElementById('solicitud-tipo-equipo');
+                if (select) {
+                    select.innerHTML += tiposEquipoData.map(t => 
+                        `<option value="${t.id}">${t.nombre}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error('Error cargando tipos de equipo:', error);
+            }
+        }
+
+        // Cambiar tabs
+        function cambiarTab(tab) {
+            // Desactivar todas las tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Activar tab seleccionada
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        // Modales
+        function abrirModalNuevaSolicitud() {
+            document.getElementById('modal-nueva-solicitud').classList.add('active');
+        }
+
+        function cerrarModalNuevaSolicitud() {
+            document.getElementById('modal-nueva-solicitud').classList.remove('active');
+            document.getElementById('form-nueva-solicitud').reset();
+        }
+
+        function cerrarModalDetalle() {
+            document.getElementById('modal-detalle-solicitud').classList.remove('active');
+        }
+
+        // Crear solicitud
+        async function crearSolicitud(event) {
+            event.preventDefault();
+            
+            try {
+                const formData = {
+                    cliente_id: document.getElementById('solicitud-cliente').value,
+                    sucursal_id: document.getElementById('solicitud-sucursal').value,
+                    tipo_equipo_id: document.getElementById('solicitud-tipo-equipo').value,
+                    cantidad_equipos: document.getElementById('solicitud-cantidad').value,
+                    fecha_solicitada: document.getElementById('solicitud-fecha').value,
+                    prioridad: document.getElementById('solicitud-prioridad').value,
+                    observaciones: document.getElementById('solicitud-observaciones').value
+                };
+
+                const response = await fetch('/api/coordinacion/solicitudes/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    mostrarExito('Solicitud creada exitosamente');
+                    cerrarModalNuevaSolicitud();
+                    cargarSolicitudes();
+                    cargarEstadisticas();
+                } else {
+                    mostrarError('Error al crear la solicitud');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarError('Error al crear la solicitud');
+            }
+        }
+
+        // Ver detalle
+        async function verDetalleSolicitud(id) {
+            try {
+                const response = await fetch(`/api/coordinacion/solicitudes/${id}/`);
+                const data = await response.json();
+                
+                // Aquí puedes renderizar el detalle completo
+                document.getElementById('modal-detalle-solicitud').classList.add('active');
+                // ... renderizar contenido
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarError('Error cargando detalle');
+            }
+        }
+
+        // Utilidades
+        function formatearFecha(fecha) {
+            return new Date(fecha).toLocaleDateString('es-CL');
+        }
+
+        function mostrarExito(mensaje) {
+            alert(mensaje); // Implementar toast notification
+        }
+
+        function mostrarError(mensaje) {
+            alert(mensaje); // Implementar toast notification
+        }
+
+        // Cargar sucursales cuando se selecciona un cliente
+        document.getElementById('solicitud-cliente')?.addEventListener('change', async function(e) {
+            const clienteId = e.target.value;
+            if (!clienteId) return;
+            
+            try {
+                const response = await fetch(`/api/coordinacion/sucursales/?cliente=${clienteId}`);
+                const sucursales = await response.json();
+                
+                const select = document.getElementById('solicitud-sucursal');
+                select.innerHTML = '<option value="">Seleccionar sucursal...</option>' +
+                    sucursales.map(s => `<option value="${s.id}">${s.nombre} - ${s.direccion}</option>`).join('');
+            } catch (error) {
+                console.error('Error cargando sucursales:', error);
+            }
+        });
+
+        function toggleProfileMenu() {
+            // Implementar menu de perfil
+        }
+    </script>
+</body>
+</html>

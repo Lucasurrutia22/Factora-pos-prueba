@@ -1,0 +1,469 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Reportes</title>
+
+    <link rel="stylesheet" href="{% static 'css/bodega.css' %}" />
+    <style>
+        .sidebar-header {
+            color: white;
+        }
+
+        .logo {
+            color: white !important;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .sidebar-item {
+            color: rgba(255,255,255,0.7) !important;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+        }
+
+        .sidebar-item.active {
+            background-color: var(--accent) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+
+            <div class="menu-section">Operaciones</div>
+
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+
+            <a href="/bodega/" class="menu-item active">
+                <i>📦</i> Bodega
+            </a>
+
+            <a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+
+            <a href="{% url 'usuarios' %}" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar reportes...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 20px; cursor: pointer;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+
+                    <a href="{% url 'config' %}" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <div class="dashboard-container">
+
+        <div class="page-header">
+            <div>
+                <div class="page-title">Bodega</div>
+                <div class="page-subtitle">Gestión de Bodega</div>
+            </div>
+
+            <div class="header-actions-right">
+                <button id="resetBtn" class="btn-secondary" onclick="resetBodegaCompletamente()" title="Resetear todo a 0">🔄 Resetear</button>
+                <button id="exportPdfBtn" class="btn-primary" onclick="exportReportPDF()">📥 Descargar PDF</button>
+            </div>
+        </div>
+
+        <!-- Filters removed (not used) -->
+
+        <!-- TOTAL (centrado en su propio contenedor) -->
+        <div style="display: flex; justify-content: center; margin: 12px 0;">
+            <div id="totalBox" style="background:#e9f7ee; border:1px solid #d1ead6; padding:12px 24px; border-radius:6px; font-weight:700; color:#1f7a3a; font-size:18px;">TOTAL $0</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="report-stats-grid">
+
+            <div class="report-stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-label">Totales de Productos Almacenados</div>
+                    <div class="stat-value" id="totalSales">$0</div>
+                </div>
+            </div>
+
+            <div class="report-stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <div class="stat-label">Unidades Totales</div>
+                    <div class="stat-value" id="totalUnits">0</div>
+                </div>
+            </div>
+
+            <div class="report-stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-label">Margen Promedio</div>
+                    <div class="stat-value" id="avgMargin">0%</div>
+                </div>
+            </div>
+
+            <div class="report-stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <div class="stat-label">Crecimiento vs Período Anterior</div>
+                    <div class="stat-value" id="growth">+0%</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Report Table removed -->
+
+        <!-- Bodega: Tablas por categoría -->
+        <div class="bodega-tables">
+
+            <div class="report-card" style="flex:1; min-width:280px;">
+                <div class="report-header"><h3>Equipos</h3>
+                    <div style="margin-left:auto;">
+                        <button class="btn-secondary" id="addEquiposBtn" onclick="openModalById('addEquiposModal')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="report-table bodega-table" id="equiposTable">
+                        <thead>
+                            <tr><th>Código</th><th>Equipos</th><th style="text-align:center;">Cantidad</th><th style="text-align:center; display:flex; align-items:center; justify-content:center;">Total $</th></tr>
+                        </thead>
+                        <tbody id="equiposBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="report-card" style="flex:1; min-width:280px;">
+                <div class="report-header"><h3>Materiales y cables</h3>
+                    <div style="margin-left:auto;">
+                        <button class="btn-secondary" id="addMaterialesBtn" onclick="openModalById('addMaterialesModal')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="report-table bodega-table" id="materialesTable">
+                        <thead>
+                            <tr><th>Materiales y cables</th><th style="text-align:center;">Cantidad</th><th style="text-align:center; display:flex; align-items:center; justify-content:center;">Total $</th></tr>
+                        </thead>
+                        <tbody id="materialesBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="report-card" style="flex:1; min-width:280px;">
+                <div class="report-header"><h3>Repuestos</h3>
+                    <div style="margin-left:auto;">
+                        <button class="btn-secondary" id="addRepuestosBtn" onclick="openModalById('addRepuestosModal')">+ Agregar</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="report-table bodega-table" id="repuestosTable">
+                        <thead>
+                            <tr><th>Repuestos</th><th style="text-align:center;">Cantidad</th><th style="text-align:center; display:flex; align-items:center; justify-content:center;">Total $</th></tr>
+                        </thead>
+                        <tbody id="repuestosBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-section">
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Ventas por Categoría</h3>
+                </div>
+                <canvas id="categoryChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Tendencia de Ventas</h3>
+                </div>
+                <canvas id="trendsChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Panel de Análisis Rápido -->
+        <div class="analysis-summary">
+            <div class="analysis-card">
+                <div class="analysis-icon">💰</div>
+                <div class="analysis-content">
+                    <div class="analysis-label">Inversión por Categoría</div>
+                    <div class="analysis-breakdown">
+                        <div class="breakdown-row">
+                            <span class="category-badge equipos">🔧 Equipos</span>
+                            <span class="breakdown-value" id="equiposAnalysis">$0</span>
+                            <span class="breakdown-percent" id="equiposPercent">(0%)</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge materiales">📦 Materiales</span>
+                            <span class="breakdown-value" id="materialesAnalysis">$0</span>
+                            <span class="breakdown-percent" id="materialesPercent">(0%)</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge repuestos">🔩 Repuestos</span>
+                            <span class="breakdown-value" id="repuestosAnalysis">$0</span>
+                            <span class="breakdown-percent" id="repuestosPercent">(0%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-card">
+                <div class="analysis-icon">📊</div>
+                <div class="analysis-content">
+                    <div class="analysis-label">Promedio por Categoría</div>
+                    <div class="analysis-breakdown">
+                        <div class="breakdown-row">
+                            <span class="category-badge equipos">🔧 Equipos</span>
+                            <span class="breakdown-value" id="equiposAvg">$0</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge materiales">📦 Materiales</span>
+                            <span class="breakdown-value" id="materialesAvg">$0</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge repuestos">🔩 Repuestos</span>
+                            <span class="breakdown-value" id="repuestosAvg">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-card">
+                <div class="analysis-icon">📈</div>
+                <div class="analysis-content">
+                    <div class="analysis-label">Resumen de Unidades</div>
+                    <div class="analysis-breakdown">
+                        <div class="breakdown-row">
+                            <span class="category-badge equipos">🔧 Equipos</span>
+                            <span class="breakdown-value" id="equiposQty">0</span>
+                            <span style="color: #999; font-size: 12px;">unidades</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge materiales">📦 Materiales</span>
+                            <span class="breakdown-value" id="materialesQty">0</span>
+                            <span style="color: #999; font-size: 12px;">unidades</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="category-badge repuestos">🔩 Repuestos</span>
+                            <span class="breakdown-value" id="repuestosQty">0</span>
+                            <span style="color: #999; font-size: 12px;">unidades</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script>
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+
+     
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/Bodega.js' %}?v={% now 'U' %}"></script>
+
+<!-- Modales para agregar entradas manuales (Equipos, Materiales, Repuestos) -->
+<div id="addEquiposModal" class="modal">
+    <div class="modal-content">
+        <h4>Agregar Equipo</h4>
+        <form id="formAddEquipos">
+            <label>Código Identificador</label>
+            <input type="text" id="equiposCode" placeholder="Ej: BX9M8463" required />
+            
+            <label>Equipo</label>
+            <input type="text" id="equiposName" placeholder="Ej: TV Box" required />
+            
+            <label>Cantidad</label>
+            <input type="text" id="equiposQty" placeholder="1" inputmode="decimal" required />
+            
+            <label>Valor $ (unitario)</label>
+            <input type="text" id="equiposValue" placeholder="Ej: 500000" required />
+            
+            <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModalById('addEquiposModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+                <button type="button" class="btn-secondary" onclick="closeModalById('addEquiposModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="addMaterialesModal" class="modal">
+    <div class="modal-content">
+        <h4>Agregar Material / Cable</h4>
+        <form id="formAddMateriales">
+            <label>Material</label>
+            <input type="text" id="materialesName" placeholder="Ej: Cable UTP 50m" required />
+            <label>Cantidad</label>
+            <input type="text" id="materialesQty" placeholder="1" inputmode="decimal" required />
+            <label>Valor $ (unitario)</label>
+            <input type="text" id="materialesValue" placeholder="Ej: 25000" required />
+            <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModalById('addMaterialesModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="addRepuestosModal" class="modal">
+    <div class="modal-content">
+        <h4>Agregar Repuesto</h4>
+        <form id="formAddRepuestos">
+            <label>Repuesto</label>
+            <input type="text" id="repuestosName" placeholder="Ej: Pantalla 27 pulgadas" required />
+            <label>Cantidad</label>
+            <input type="text" id="repuestosQty" placeholder="1" inputmode="decimal" required />
+            <label>Valor $ (unitario)</label>
+            <input type="text" id="repuestosValue" placeholder="Ej: 350000" required />
+            <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModalById('addRepuestosModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

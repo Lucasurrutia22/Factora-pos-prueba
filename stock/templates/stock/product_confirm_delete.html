@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirmar eliminación</title>
+</head>
+<body>
+    <h3>Eliminar Producto</h3>
+    <p>¿Eliminar "{{ object.nombre }}"?</p>
+    <form method="post">{% csrf_token %}
+        <button type="submit">Sí, eliminar</button>
+        <a href="{% url 'stock:product_list' %}">Cancelar</a>
+    </form>
+</body>
+</html>

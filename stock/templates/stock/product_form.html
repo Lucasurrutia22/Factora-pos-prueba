@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% if form.instance.pk %}Editar{% else %}Agregar{% endif %} Producto</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <style>label{display:block;margin-top:8px;} input, select{padding:8px;width:100%;max-width:480px;}</style>
+</head>
+<body>
+    <h2>{% if form.instance.pk %}Editar{% else %}Agregar{% endif %} Producto</h2>
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+        <a href="{% url 'stock:product_list' %}">Cancelar</a>
+    </form>
+</body>
+</html>

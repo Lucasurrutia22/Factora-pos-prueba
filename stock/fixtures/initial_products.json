@@ -1,0 +1,35 @@
+[
+  {
+    "model": "stock.producto",
+    "pk": 1,
+    "fields": {
+      "nombre": "TOTEM ANYPOS100 (AP100)",
+      "sku": "AP100",
+      "categoria": "Totem",
+      "precio": "1094111.00",
+      "cantidad": 5
+    }
+  },
+  {
+    "model": "stock.producto",
+    "pk": 2,
+    "fields": {
+      "nombre": "TOTEM ANYPOS200 (AP200)",
+      "sku": "AP200",
+      "categoria": "Totem",
+      "precio": "781508.00",
+      "cantidad": 3
+    }
+  },
+  {
+    "model": "stock.producto",
+    "pk": 3,
+    "fields": {
+      "nombre": "TV 43\"",
+      "sku": "TV43",
+      "categoria": "TV",
+      "precio": "289158.00",
+      "cantidad": 10
+    }
+  }
+]

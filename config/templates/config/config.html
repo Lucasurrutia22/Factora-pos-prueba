@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Configuración</title>
+    <link rel="stylesheet" href="{% static 'css/config.css' %}" />
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+
+            <div class="menu-section">Operaciones</div>
+
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+
+            <a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+
+            <a href="{% url 'usuarios' %}" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+
+            <a href="{% url 'config' %}" class="menu-item active">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar configuración...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 24px; cursor: pointer; display: inline-block; line-height: 1;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">Configuración del Sistema</div>
+        <div class="page-subtitle">Administra la configuración general de la aplicación</div>
+
+        <div class="settings-grid">
+
+            <!-- Configuración General -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3>⚙️ Configuración General</h3>
+                </div>
+                <form>
+                    <div class="form-group">
+                        <label>Nombre de la Empresa</label>
+                        <input type="text" id="companyName" placeholder="Ej: Mi Empresa" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email de Soporte</label>
+                        <input type="email" id="supportEmail" placeholder="soporte@empresa.com" />
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="phone" placeholder="+56 9 1234 5678" />
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+    </script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/config.js' %}?v={% now 'U' %}"></script>
+
+</body>
+</html>

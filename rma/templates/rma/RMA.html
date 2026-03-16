@@ -1,0 +1,397 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - RMA / Garantías</title>
+
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/RMA.css' %}">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #667eea;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1e293b;
+            --bg-secondary: #0f172a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --accent: #818cf8;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .sidebar {
+            background-color: var(--bg-secondary) !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+
+        .card, .table-container {
+            background-color: var(--bg-secondary) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        input, textarea, select {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+            
+            <div class="menu-section">Operaciones</div>
+
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+
+            <a href="{% url 'rma' %}" class="menu-item active">
+                <i>🔧</i> RMA / Garantías
+            </a>
+
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+
+            <a href="{% url 'usuarios' %}" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos, clientes, facturas...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 24px; cursor: pointer; display: inline-block; line-height: 1;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 16px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+
+                    <a href="{% url 'config' %}" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">RMA / Garantías</div>
+        <div class="page-subtitle">Gestiona devoluciones, cambios y garantías de productos</div>
+
+        <!-- Add RMA Form -->
+        <div class="table-card" style="margin-bottom: 20px;">
+            <div class="chart-header" style="margin-bottom: 20px;">
+                <div class="chart-title">Nueva Solicitud RMA</div>
+            </div>
+
+            <form id="rmaForm">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Producto *</label>
+                        <input type="text" id="producto" placeholder="Nombre del producto" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Nombre del Cliente *</label>
+                        <input type="text" id="clienteNombre" placeholder="Nombre completo" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Tipo de RMA *</label>
+                        <select id="tipoRMA" required>
+                            <option value="Devolución">Devolución</option>
+                            <option value="Cambio">Cambio</option>
+                            <option value="Reparación">Reparación</option>
+                            <option value="Defecto">Defecto de Fábrica</option>
+                            <option value="Garantía">Reclamación por Garantía</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Email del Cliente</label>
+                        <input type="email" id="emailCliente" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Teléfono del Cliente</label>
+                        <input type="tel" id="telefonoCliente" placeholder="555-1234">
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Estado</label>
+                        <select id="estado">
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="EN PROCESO">En Proceso</option>
+                            <option value="COMPLETADO">Completado</option>
+                            <option value="RECHAZADO">Rechazado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Fecha de Compra Original</label>
+                        <input type="date" id="fechaCompra">
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label>Número de Referencia (Factura/OC)</label>
+                        <input type="text" id="numeroReferencia" placeholder="FAC-2024-001">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; margin-top: 15px;">
+                    <label>Descripción del Problema *</label>
+                    <textarea id="descripcionProblema" placeholder="Describe en detalle el problema..." required style="min-height: 80px;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 15px; width: 100%;">
+                    Crear Solicitud RMA
+                </button>
+            </form>
+        </div>
+
+
+
+        <!-- RMA Requests List -->
+        <div class="table-card">
+            <div class="chart-header" style="margin-bottom: 20px;">
+                <div class="chart-title">Solicitudes RMA Registradas</div>
+            </div>
+
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Producto</th>
+                        <th>Cliente</th>
+                        <th>Tipo RMA</th>
+                        <th>Referencia</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="rmaTableBody">
+                    <tr><td colspan="8" style="text-align: center;">Cargando solicitudes...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- Scripts -->
+    <script>
+        // Función global para cambiar tema
+        function setTheme(theme) {
+            console.log('Cambiando tema a:', theme);
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                const darkBtn = document.getElementById('themeDark');
+                const lightBtn = document.getElementById('themeLight');
+                if (darkBtn) {
+                    darkBtn.classList.add('active');
+                }
+                if (lightBtn) {
+                    lightBtn.classList.remove('active');
+                }
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                const darkBtn = document.getElementById('themeDark');
+                const lightBtn = document.getElementById('themeLight');
+                if (lightBtn) {
+                    lightBtn.classList.add('active');
+                }
+                if (darkBtn) {
+                    darkBtn.classList.remove('active');
+                }
+            }
+        }
+
+        // Cargar tema guardado al iniciar
+        function loadSavedTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            setTheme(theme);
+        }
+        
+        // Ejecutar cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedTheme();
+        });
+        
+        // También ejecutar inmediatamente en caso de que el DOM ya esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSavedTheme);
+        } else {
+            loadSavedTheme();
+        }
+
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+    </script>
+    <!-- Script para actualizar header con datos del usuario -->
+    <script>
+        (function() {
+            const user = JSON.parse(sessionStorage.getItem('factora_user') || 'null');
+            if (user) {
+                const displayName = user.username || 'Admin Usuario';
+                const displayRole = user.role || 'Administrador';
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                const welcomeText = document.getElementById('welcomeText');
+                if (welcomeText) welcomeText.textContent = displayName;
+                
+                const roleText = document.getElementById('roleText');
+                if (roleText) roleText.textContent = displayRole;
+                
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) userAvatar.textContent = firstLetter;
+                
+                const dropdownName = document.querySelector('.dropdown-name');
+                if (dropdownName) dropdownName.textContent = displayName;
+                
+                const dropdownRole = document.querySelector('.dropdown-role');
+                if (dropdownRole) dropdownRole.textContent = displayRole;
+                
+                const dropdownAvatar = document.querySelector('.dropdown-avatar');
+                if (dropdownAvatar) dropdownAvatar.textContent = firstLetter;
+            }
+        })();
+    </script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/header-user.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/RMA.js' %}?v={% now 'U' %}"></script>
+
+</body>
+</html>

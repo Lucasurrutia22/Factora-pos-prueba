@@ -1,0 +1,249 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Configuración de Usuarios</title>
+
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+
+            <div class="menu-section">Operaciones</div>
+            <a href="{% url 'punto_venta' %}" class="menu-item">
+                <i>🛒</i> Punto de Venta
+            </a>
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+            <a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+            <a href="{% url 'usuarios' %}" class="menu-item active">
+                <i>👤</i> Usuarios
+            </a>
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos, clientes, facturas...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 24px; cursor: pointer; display: inline-block; line-height: 1;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 14px;">Admin Usuario</div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">Administrador</div>
+                    </div>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+                    <a href="{% url 'config' %}" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">Configuración de Usuarios</div>
+        <div class="page-subtitle">Administra permisos y roles del sistema</div>
+
+        <!-- Roles y Permisos -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h3 class="card-title">👥 Roles y Permisos</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <!-- Rol Admin -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 15px 0;">🔐 Administrador</h4>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
+                            <li>Acceso total al sistema</li>
+                            <li>Gestión de usuarios</li>
+                            <li>Configuración del sistema</li>
+                            <li>Reportes avanzados</li>
+                        </ul>
+                    </div>
+
+                    <!-- Rol Vendedor -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 15px 0;">💼 Vendedor</h4>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
+                            <li>Punto de venta</li>
+                            <li>Gestión de clientes</li>
+                            <li>Ver reportes básicos</li>
+                            <li>Consultar inventario</li>
+                        </ul>
+                    </div>
+
+                    <!-- Rol Bodega -->
+                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 15px 0;">📦 Bodega</h4>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
+                            <li>Gestión de inventario</li>
+                            <li>Registrar movimientos</li>
+                            <li>Gestión de proveedores</li>
+                            <li>Seguimiento de RMA</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuración de Seguridad -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">🔒 Configuración de Seguridad</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <h4 style="margin: 0 0 15px 0;">Política de Contraseñas</h4>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>Requerir mayúsculas</span>
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>Requerir números</span>
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox">
+                                <span>Requerir caracteres especiales</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>Longitud mínima: <input type="number" value="8" style="width: 60px;"></label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="margin: 0 0 15px 0;">Sesiones</h4>
+                        <div style="margin-bottom: 15px;">
+                            <label>Tiempo de inactividad (minutos): <input type="number" value="30" style="width: 80px;"></label>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>Recordar último usuario</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>Requerir confirmación en logout</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="margin-top: 20px;">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script>
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+    </script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+
+</body>
+</html>

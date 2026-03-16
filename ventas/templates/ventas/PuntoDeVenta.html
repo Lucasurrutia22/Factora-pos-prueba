@@ -1,0 +1,386 @@
++-{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACTORA POS - Punto de Venta</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+    <!-- CSS estáticos -->
+    <link rel="stylesheet" href="{% static 'css/shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/PuntoDeVenta.css' %}">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #667eea;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1e293b;
+            --bg-secondary: #0f172a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --accent: #818cf8;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .sidebar {
+            background-color: var(--bg-secondary) !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+
+        .card, .table-container {
+            background-color: var(--bg-secondary) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        input, textarea, select {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <div class="logo-subtitle">Sistema Integrado de Gestión</div>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i>📊</i> Dashboard
+            </a>
+
+            <div class="menu-section">Operaciones</div>
+
+            <a href="{% url 'punto_venta' %}" class="menu-item active">
+                <i>🛒</i> Punto de Venta
+            </a>
+
+            <a href="{% url 'inventario' %}" class="menu-item">
+                <i>📦</i> Inventario
+            </a>
+
+            <a href="{% url 'clientes' %}" class="menu-item">
+                <i>👥</i> Clientes
+            </a>
+
+            <a href="{% url 'proveedores' %}" class="menu-item">
+                <i>🏭</i> Proveedores
+            </a>
+
+            <div class="menu-section">Gestión</div>
+
+            <a href="/bodega/" class="menu-item">
+                <i>📦</i> Bodega
+            </a>
+
+            <a href="{% url 'rma' %}" class="menu-item">
+                <i>🔧</i> RMA / Garantías
+            </a>
+
+            <a href="{% url 'movimientos' %}" class="menu-item">
+                <i>📦</i> Mov. Inventario
+            </a>
+
+            <div class="menu-section">Configuración</div>
+
+            <a href="{% url 'usuarios' %}" class="menu-item">
+                <i>👤</i> Usuarios
+            </a>
+
+            <a href="{% url 'config' %}" class="menu-item">
+                <i>⚙️</i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos, clientes, facturas...">
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-badge">
+                <span id="notificationBell" style="font-size: 24px; cursor: pointer; display: inline-block; line-height: 1;" onclick="toggleNotifications(event)">🔔</span>
+                <span class="notification-count" id="notificationCount" aria-hidden="true"></span>
+
+                <div class="notifications-dropdown" id="notificationsDropdown" aria-live="polite">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Notificaciones</div>
+                        <div class="dropdown-actions">
+                            <button class="btn-small btn-secondary" onclick="clearAllNotifications()">Marcar todas leídas</button>
+                        </div>
+                    </div>
+                    <div class="dropdown-list" id="notificationsList"></div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile-wrapper">
+                <div class="user-profile" onclick="toggleProfileMenu()">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div id="welcomeText" style="font-weight: 600; font-size: 16px;">
+                            Admin Usuario
+                        </div>
+                        <div id="roleText" style="font-size: 12px; color: #64748b;">
+                            Administrador
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">A</div>
+                        <div class="dropdown-info">
+                            <div class="dropdown-name">Admin Usuario</div>
+                            <div class="dropdown-role">Administrador</div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <span>👤</span> Mi Perfil
+                    </a>
+
+                    <a href="{% url 'config' %}" class="dropdown-item">
+                        <span>⚙️</span> Configuración
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-title">Punto de Venta</div>
+        <div class="page-subtitle">Selecciona tu local y administra ventas</div>
+
+        <!-- Formulario para agregar nuevo punto -->
+        <div class="card" style="margin-top:20px; margin-bottom:20px;">
+            <div class="card-header">
+                <h3 class="card-title">➕ Agregar Nuevo Punto de Venta</h3>
+            </div>
+            <div class="card-body">
+                <form id="storeForm" onsubmit="handleStoreSubmit(event)">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Nombre del Local</label>
+                            <input type="text" id="storeName" placeholder="Ej: Local Mall Plaza" required
+                                   style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Dirección Completa</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="storeAddress" placeholder="Ej: Av. Principal 123, Santiago, Chile" required
+                                       style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <button type="button" onclick="geocodeAddress()" 
+                                        style="padding: 10px 15px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; white-space: nowrap;">
+                                    🔍 Buscar en Mapa
+                                </button>
+                            </div>
+                            <div id="geocodeStatus" style="margin-top: 5px; font-size: 12px;"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Teléfono</label>
+                            <input type="text" id="storePhone" placeholder="Ej: +56 9 1234 5678"
+                                   style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Horario</label>
+                            <input type="text" id="storeHours" placeholder="Ej: 09:00 - 21:00"
+                                   style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button type="submit" id="submitStoreBtn" style="padding: 12px 24px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            ➕ Agregar Punto de Venta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="card" style="margin-top:20px; margin-bottom:20px;">
+            <div class="card-header">
+                <h3 class="card-title">📍 Ubicación de Puntos de Venta</h3>
+                <p class="card-subtitle">Haz click en un local para seleccionarlo</p>
+            </div>
+
+            <div class="card-body">
+                <div id="map"
+                     style="width:100%; height:400px; border-radius:8px; border:1px solid #e2e8f0;">
+                </div>
+
+                <!-- Lista de locales -->
+                <div id="storeCardsContainer" style="margin-top:20px;
+                            display:grid;
+                            grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+                            gap:15px;">
+                    <!-- Los locales se cargan dinámicamente desde JavaScript -->
+                </div>
+
+                <!-- Información local seleccionado -->
+                <div id="selectedStoreInfo"
+                     style="margin-top:20px; padding:15px;
+                            background:linear-gradient(135deg,#dbeafe,#e0f2fe);
+                            border-radius:8px; border-left:4px solid #3b82f6;
+                            display:none;">
+                    <strong>Local Seleccionado:</strong> <span id="selectedStoreName"></span><br>
+                    <strong>Dirección:</strong> <span id="selectedStoreAddress"></span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:10px; color:#475569; font-size:14px;">
+            Selecciona un local en el mapa o desde la lista superior.
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Función global para cambiar tema
+        function setTheme(theme) {
+            console.log('Cambiando tema a:', theme);
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                const darkBtn = document.getElementById('themeDark');
+                const lightBtn = document.getElementById('themeLight');
+                if (darkBtn) {
+                    darkBtn.classList.add('active');
+                }
+                if (lightBtn) {
+                    lightBtn.classList.remove('active');
+                }
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                const darkBtn = document.getElementById('themeDark');
+                const lightBtn = document.getElementById('themeLight');
+                if (lightBtn) {
+                    lightBtn.classList.add('active');
+                }
+                if (darkBtn) {
+                    darkBtn.classList.remove('active');
+                }
+            }
+        }
+
+        // Cargar tema guardado al iniciar
+        function loadSavedTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            setTheme(theme);
+        }
+        
+        // Ejecutar cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedTheme();
+        });
+        
+        // También ejecutar inmediatamente en caso de que el DOM ya esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSavedTheme);
+        } else {
+            loadSavedTheme();
+        }
+
+        // Función global de logout
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try { sessionStorage.clear(); } catch(e){}
+                try { localStorage.removeItem('factora_user_remember'); } catch(e){}
+                try { localStorage.removeItem('userToken'); } catch(e){}
+                try { localStorage.removeItem('userData'); } catch(e){}
+                try { sessionStorage.removeItem('factora_user'); } catch(e){}
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <!-- Script para actualizar header con datos del usuario -->
+    <script>
+        function updateHeaderFromSession() {
+            const user = JSON.parse(sessionStorage.getItem('factora_user') || 'null');
+            if (user) {
+                const displayName = user.username || 'Admin Usuario';
+                const displayRole = user.role || 'Administrador';
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                const welcomeText = document.getElementById('welcomeText');
+                if (welcomeText) welcomeText.textContent = displayName;
+                
+                const roleText = document.getElementById('roleText');
+                if (roleText) roleText.textContent = displayRole;
+                
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) userAvatar.textContent = firstLetter;
+                
+                const dropdownName = document.querySelector('.dropdown-name');
+                if (dropdownName) dropdownName.textContent = displayName;
+                
+                const dropdownRole = document.querySelector('.dropdown-role');
+                if (dropdownRole) dropdownRole.textContent = displayRole;
+                
+                const dropdownAvatar = document.querySelector('.dropdown-avatar');
+                if (dropdownAvatar) dropdownAvatar.textContent = firstLetter;
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateHeaderFromSession);
+        } else {
+            updateHeaderFromSession();
+        }
+    </script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/header-user.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/PuntoDeVenta.js' %}?v={% now 'U' %}"></script>
+
+</body>
+</html>

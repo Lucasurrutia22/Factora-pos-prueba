@@ -1,0 +1,161 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>FACTORA POS - Inicio</title>
+
+    <!-- CSS desde static -->
+    <link rel="stylesheet" href="{% static 'css/index.css' %}?v={% now 'U' %}">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <main class="login-container">
+        <!-- Panel Izquierdo -->
+        <section class="left-panel">
+            <div class="brand-container">
+                <div class="logo-icon">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <h1 class="brand">FACTORA POS</h1>
+            </div>
+            <p class="subtitle">Sistema integrado de gestión empresarial</p>
+
+            <ul class="features">
+                <li><i class="fas fa-boxes"></i> Control de inventario en tiempo real</li>
+                <li><i class="fas fa-barcode"></i> Trazabilidad por número de serie</li>
+                <li><i class="fas fa-shield-alt"></i> Seguridad con autenticación 2FA</li>
+            </ul>
+
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                <span>Conexión segura y encriptada</span>
+            </div>
+        </section>
+
+        <!-- Panel Derecho -->
+        <section class="right-panel">
+            <!-- Step 1: Login -->
+            <div id="step1" class="auth-step active">
+                <div class="step-header">
+                    <h2><i class="fas fa-sign-in-alt"></i> Iniciar sesión</h2>
+                    <p class="step-desc">Ingresa tus credenciales para continuar</p>
+                </div>
+
+                <div id="alertContainer" class="alert-container" aria-live="polite"></div>
+
+                <form id="loginForm" class="form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input id="username" name="username" type="text" placeholder="Usuario o correo electrónico" required />
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input id="password" name="password" type="password" placeholder="Contraseña" required />
+                        <button type="button" class="toggle-password" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="controls">
+                        <label class="remember-label">
+                            <input id="rememberMe" type="checkbox">
+                            <span class="checkmark"></span>
+                            Recordar sesión
+                        </label>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Continuar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: 2FA Verification -->
+            <div id="step2" class="auth-step">
+                <div class="step-header">
+                    <button type="button" class="back-btn" id="backToLogin">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2><i class="fas fa-shield-alt"></i> Verificación 2FA</h2>
+                    <p class="step-desc">Ingresa el código de seguridad</p>
+                </div>
+
+                <div id="alertContainer2FA" class="alert-container" aria-live="polite"></div>
+
+                <div class="twofa-info">
+                    <div class="twofa-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <p>Hemos enviado un código de 6 dígitos a tu dispositivo registrado</p>
+                    <p class="user-hint">Usuario: <strong id="userHint"></strong></p>
+                </div>
+
+                <form id="twofaForm" class="form">
+                    <div class="code-inputs">
+                        <input type="text" maxlength="1" class="code-digit" data-index="0" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+                        <input type="text" maxlength="1" class="code-digit" data-index="1" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="code-digit" data-index="2" inputmode="numeric" pattern="[0-9]">
+                        <div class="code-separator">-</div>
+                        <input type="text" maxlength="1" class="code-digit" data-index="3" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="code-digit" data-index="4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="code-digit" data-index="5" inputmode="numeric" pattern="[0-9]">
+                    </div>
+
+                    <div class="timer-container">
+                        <div class="timer-bar">
+                            <div class="timer-progress" id="timerProgress"></div>
+                        </div>
+                        <span class="timer-text">Código válido por <strong id="timerCount">60</strong>s</span>
+                    </div>
+
+                    <label class="trust-device">
+                        <input id="trustDevice" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span>Confiar en este dispositivo por 30 días</span>
+                    </label>
+
+                    <button type="submit" class="btn btn-primary btn-verify" disabled>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Verificar código</span>
+                    </button>
+
+                    <div class="resend-container">
+                        <span>¿No recibiste el código?</span>
+                        <button type="button" class="resend-btn" id="resendCode" disabled>
+                            Reenviar código
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 3: Success Animation -->
+            <div id="step3" class="auth-step">
+                <div class="success-container">
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                            <div class="icon-circle"></div>
+                            <div class="icon-fix"></div>
+                        </div>
+                    </div>
+                    <h2>¡Bienvenido!</h2>
+                    <p id="welcomeMessage">Acceso verificado correctamente</p>
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JS desde static -->
+    <script src="{% static 'js/index.js' %}?v={% now 'U' %}"></script>
+</body>
+</html>

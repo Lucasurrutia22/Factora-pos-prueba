@@ -1,0 +1,5 @@
+# FactoraPos - Dependencias Python
+# Instalar con: pip install -r requirements.txt
+
+Django>=5.0
+oracledb>=2.0.0
