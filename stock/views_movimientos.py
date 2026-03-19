@@ -16,13 +16,16 @@ from .models import Producto, MovimientoInventario
 @require_http_methods(["GET"])
 def buscar_producto_codigo(request):
     """
-    Buscar producto por código de barra
+    Buscar producto por código de barra - ACEPTA CUALQUIER CÓDIGO
     GET /api/movimientos/producto-codigo/?codigo=123456789
     
     La búsqueda funciona de la siguiente manera:
     1. Primero intenta encontrar una coincidencia exacta
     2. Si no encuentra, busca por prefijo (primeros caracteres)
-    3. Si hay múltiples coincidencias por prefijo, devuelve la primera
+    3. Si no encuentra por prefijo, devuelve un PRODUCTO GENÉRICO con el código escaneado
+    
+    NOTA: Ahora acepta CUALQUIER código de barra, incluso si no existe en la BD.
+    Esto permite registrar movimientos de productos nuevos o desconocidos.
     
     Respuesta JSON con datos del producto
     """
@@ -50,7 +53,8 @@ def buscar_producto_codigo(request):
                 'ubicacion': producto.ubicacion or 'Sin ubicación',
                 'precio': float(producto.precio or 0),
                 'categoria': producto.categoria or 'General'
-            }
+            },
+            'es_generado': False  # Indica que es un producto real de la BD
         })
     except Producto.DoesNotExist:
         print(f'[DEBUG] Búsqueda exacta sin resultados, intentando búsqueda por prefijo')
@@ -75,11 +79,28 @@ def buscar_producto_codigo(request):
                         'ubicacion': producto.ubicacion or 'Sin ubicación',
                         'precio': float(producto.precio or 0),
                         'categoria': producto.categoria or 'General'
-                    }
+                    },
+                    'es_generado': False  # Indica que es un producto real de la BD
                 })
             else:
-                print(f'[DEBUG] Producto no encontrado para código: {repr(codigo)} ni prefijo: {repr(prefijo)}')
-                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+                # ✅ CAMBIO: Si no encuentra, devolver PRODUCTO GENÉRICO en lugar de error
+                print(f'[DEBUG] Producto no encontrado, creando producto genérico para código: {repr(codigo)}')
+                
+                return JsonResponse({
+                    'success': True,
+                    'producto': {
+                        'id': None,  # Sin ID en base de datos
+                        'nombre': f'Producto - {codigo}',  # Nombre genérico con el código
+                        'codigo_barra': codigo,  # El código escaneado
+                        'sku': codigo,  # Usar el código como SKU temporal
+                        'cantidad': 0,  # Sin cantidad catalogada
+                        'ubicacion': 'Por ubicar',  # Ubicación genérica
+                        'precio': 0.0,  # Sin precio
+                        'categoria': 'Sin categoría'  # Sin categoría
+                    },
+                    'es_generado': True,  # Indica que es un producto generado temporalmente
+                    'es_nuevo': True  # Indica que el código no existía en la BD
+                })
         except Exception as e:
             print(f'[DEBUG] Error en búsqueda por prefijo: {str(e)}')
             return JsonResponse({'error': str(e)}, status=500)

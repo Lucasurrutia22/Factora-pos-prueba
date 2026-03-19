@@ -15,26 +15,26 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <a href="{% url 'dashboard' %}" class="logo">FACTORA POS</a>
+            <a href="{% url 'core:dashboard' %}" class="logo">FACTORA POS</a>
             <div class="logo-subtitle">Sistema Integrado de Gestión</div>
         </div>
 
         <div class="sidebar-menu">
-            <a href="{% url 'dashboard' %}" class="menu-item">
+            <a href="{% url 'core:dashboard' %}" class="menu-item">
                 <i>📊</i> Dashboard
             </a>
 
             <div class="menu-section">Operaciones</div>
-            <a href="{% url 'punto_venta' %}" class="menu-item">
+            <a href="{% url 'ventas:punto_venta' %}" class="menu-item">
                 <i>🛒</i> Punto de Venta
             </a>
-            <a href="{% url 'inventario' %}" class="menu-item">
+            <a href="{% url 'inventario:inventario' %}" class="menu-item">
                 <i>📦</i> Inventario
             </a>
-            <a href="{% url 'clientes' %}" class="menu-item">
+            <a href="{% url 'ventas:clientes' %}" class="menu-item">
                 <i>👥</i> Clientes
             </a>
-            <a href="{% url 'proveedores' %}" class="menu-item">
+            <a href="{% url 'proveedores:proveedores' %}" class="menu-item">
                 <i>🏭</i> Proveedores
             </a>
 
@@ -42,18 +42,18 @@
             <a href="/bodega/" class="menu-item">
                 <i>📦</i> Bodega
             </a>
-            <a href="{% url 'rma' %}" class="menu-item">
+            <a href="{% url 'rma:rma' %}" class="menu-item">
                 <i>🔧</i> RMA / Garantías
             </a>
-            <a href="{% url 'movimientos' %}" class="menu-item">
+            <a href="{% url 'movimientos:movimientos' %}" class="menu-item">
                 <i>📦</i> Mov. Inventario
             </a>
 
             <div class="menu-section">Configuración</div>
-            <a href="{% url 'usuarios' %}" class="menu-item active">
+            <a href="{% url 'usuarios:usuarios' %}" class="menu-item active">
                 <i>👤</i> Usuarios
             </a>
-            <a href="{% url 'config' %}" class="menu-item">
+            <a href="{% url 'config:config' %}" class="menu-item">
                 <i>⚙️</i> Configuración
             </a>
         </div>
@@ -79,7 +79,7 @@
                     </div>
                     <div class="dropdown-list" id="notificationsList"></div>
                     <div class="dropdown-footer">
-                        <a href="{% url 'movimientos' %}">Ver todas</a>
+                        <a href="{% url 'movimientos:movimientos' %}">Ver todas</a>
                     </div>
                 </div>
             </div>
@@ -103,10 +103,10 @@
 
                     <div class="dropdown-divider"></div>
 
-                    <a href="{% url 'profile' %}" class="dropdown-item">
+                    <a href="{% url 'core:profile' %}" class="dropdown-item">
                         <span>👤</span> Mi Perfil
                     </a>
-                    <a href="{% url 'config' %}" class="dropdown-item">
+                    <a href="{% url 'config:config' %}" class="dropdown-item">
                         <span>⚙️</span> Configuración
                     </a>
 

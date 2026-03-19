@@ -27,6 +27,7 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),
     path('ventas/', include('ventas.urls')),
     path('config/', include('config.urls')),
+    path('clientes-no-operativos/', include('clientes_no_operativos.urls')),
 ]
 
 if settings.DEBUG:

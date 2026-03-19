@@ -23,14 +23,14 @@
         </p>
 
         <p style="margin-top: 10px;">
-            <a href="{% url 'dashboard' %}" class="btn-primary">Ir al Dashboard ahora</a>
+            <a href="{% url 'core:dashboard' %}" class="btn-primary">Ir al Dashboard ahora</a>
         </p>
     </div>
 
     <script>
         // Redirigir al dashboard después de 2 segundos
         setTimeout(function() {
-            window.location.href = "{% url 'dashboard' %}";
+            window.location.href = "{% url 'core:dashboard' %}";
         }, 2000);
     </script>
 

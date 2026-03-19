@@ -84,7 +84,15 @@ function buscarProductoPorCodigo(codigo) {
                 codigoEscaneado = codigo;  // Guardar el código escaneado
                 // Pasar el código escaneado (no el del producto en BD)
                 mostrarProductoCard(data.producto, codigo);
-                mostrarStatus('Producto encontrado', 'success');
+                
+                // Mostrar mensaje diferente si es producto nuevo
+                if (data.es_nuevo) {
+                    mostrarStatus('✅ Código nuevo - Producto genérico creado', 'success');
+                } else if (data.es_generado) {
+                    mostrarStatus('✅ Código desconocido - Puedes registrar el movimiento', 'success');
+                } else {
+                    mostrarStatus('✅ Producto encontrado', 'success');
+                }
                 
                 // Enfocar cantidad después de 500ms
                 setTimeout(() => {
@@ -106,7 +114,13 @@ function buscarProductoPorCodigo(codigo) {
 function mostrarProductoCard(producto, codigoEscaneado) {
     const card = document.getElementById('productoCard');
     
-    document.getElementById('productoNombre').textContent = producto.nombre;
+    // Si es un producto generado/nuevo, mostrar indicador visual
+    let nombreProducto = producto.nombre;
+    if (producto.id === null) {
+        nombreProducto = `⚠️ ${producto.nombre} (CÓDIGO NUEVO)`;
+    }
+    
+    document.getElementById('productoNombre').textContent = nombreProducto;
     // Usar el código escaneado si se proporciona, sino usar el del producto
     document.getElementById('productoCodigo').value = codigoEscaneado || producto.codigo_barra;
     document.getElementById('productoSKU').value = producto.sku || 'N/A';

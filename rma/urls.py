@@ -7,6 +7,8 @@ from .views import (
     api_rma_delete
 )
 
+app_name = 'rma'
+
 urlpatterns = [
     path('', rma_view, name='rma'),
     # API endpoints

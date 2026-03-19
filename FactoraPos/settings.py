@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'usuarios',
     'ventas',
     'config',
+    'clientes_no_operativos',
 ]
 
 MIDDLEWARE = [
@@ -133,5 +134,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Autenticación
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'core:dashboard'
+LOGOUT_REDIRECT_URL = 'core:index'

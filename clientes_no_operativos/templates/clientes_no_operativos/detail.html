@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles - {{ cliente_no_op.cliente.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ cliente_no_op.cliente.nombre }}</h1>
+            <p class="text-muted">Cliente No Operativo</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'clientes_no_operativos:list' %}" class="btn btn-outline-secondary">← Volver a Lista</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información del Cliente -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Información del Cliente</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>ID:</th>
+                            <td>{{ cliente_no_op.cliente.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Nombre:</th>
+                            <td>{{ cliente_no_op.cliente.nombre }}</td>
+                        </tr>
+                        <tr>
+                            <th>País:</th>
+                            <td>{% if cliente_no_op.cliente.pais %}
+                                {{ cliente_no_op.cliente.pais }}
+                            {% else %}
+                                <span class="text-muted">No especificado</span>
+                            {% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>Fecha Creación:</th>
+                            <td>{{ cliente_no_op.cliente.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Estado:</th>
+                            <td>
+                                <span class="badge bg-danger">Inactivo</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de Desactivación -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Información de Desactivación</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Fecha Desactivación:</th>
+                            <td>{{ cliente_no_op.fecha_desactivacion|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Días Inactivo:</th>
+                            <td>
+                                <span class="badge bg-info">{{ cliente_no_op.dias_inactivo }} días</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Motivo:</th>
+                            <td>{% if cliente_no_op.motivo_desactivacion %}
+                                {{ cliente_no_op.motivo_desactivacion }}
+                            {% else %}
+                                <span class="text-muted">No especificado</span>
+                            {% endif %}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            {% if cliente_no_op.observaciones %}
+                <div class="card mt-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Observaciones</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ cliente_no_op.observaciones|linebreaks }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a href="{% url 'clientes_no_operativos:edit' cliente_no_op.cliente.id %}" 
+               class="btn btn-warning">
+                <i class="fas fa-edit"></i> Editar Información
+            </a>
+            <a href="{% url 'clientes_no_operativos:reactivar' cliente_no_op.cliente.id %}" 
+               class="btn btn-success">
+                <i class="fas fa-redo"></i> Reactivar Cliente
+            </a>
+            <a href="{% url 'clientes_no_operativos:list' %}" 
+               class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a Lista
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

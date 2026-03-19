@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Desactivar Cliente{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Desactivar Cliente</h1>
+            <hr>
+
+            <!-- Información del Cliente -->
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle"></i> Confirmación Requerida
+                </h4>
+                <p>Está a punto de marcar el siguiente cliente como <strong>NO OPERATIVO</strong>:</p>
+                <h5>{{ cliente.nombre }}</h5>
+                <small>ID: {{ cliente.id }} | País: {{ cliente.pais }}</small>
+            </div>
+
+            <!-- Formulario -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="card">
+                    <div class="card-body">
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Motivo de Desactivación -->
+                        <div class="mb-3">
+                            <label for="{{ form.motivo_desactivacion.id_for_label }}" class="form-label">
+                                <strong>Motivo de Desactivación</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control {% if form.motivo_desactivacion.errors %}is-invalid{% endif %}" 
+                                      id="{{ form.motivo_desactivacion.id_for_label }}" 
+                                      name="motivo_desactivacion" 
+                                      rows="3"
+                                      placeholder="Ejemplo: Cliente solicitó desactivación, incumplimiento de pago, etc."
+                                      required></textarea>
+                            {% if form.motivo_desactivacion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.motivo_desactivacion.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Especifique la razón principal de la desactivación</small>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-3">
+                            <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones</label>
+                            <textarea class="form-control {% if form.observaciones.errors %}is-invalid{% endif %}" 
+                                      id="{{ form.observaciones.id_for_label }}" 
+                                      name="observaciones" 
+                                      rows="4"
+                                      placeholder="Información adicional, contactos, notas importantes, etc."></textarea>
+                            {% if form.observaciones.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.observaciones.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Información complementaria (opcional)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Está seguro de desactivar este cliente?')">
+                        <i class="fas fa-ban"></i> Desactivar Cliente
+                    </button>
+                    <a href="{% url 'clientes_no_operativos:list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

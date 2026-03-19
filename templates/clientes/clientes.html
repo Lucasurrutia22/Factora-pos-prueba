@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Clientes - FactoraPos{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/Clientes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sección de Formulario -->
+        <div class="col-lg-4 mb-4">
+            <div class="card panel-formulario">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus"></i> Nuevo Cliente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="formCliente" novalidate>
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                Nombre <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="nombre" 
+                                placeholder="Ej: Juan Pérez"
+                                required
+                            >
+                            <small class="error-message" style="display:none;">El nombre es obligatorio</small>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                Email <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                placeholder="correo@ejemplo.com"
+                                required
+                            >
+                            <small class="error-message" style="display:none;">Email inválido</small>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">
+                                Teléfono <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="tel" 
+                                class="form-control" 
+                                id="telefono" 
+                                placeholder="987654321"
+                                maxlength="9"
+                                required
+                            >
+                            <small class="error-message" style="display:none;">El teléfono debe tener 8-9 dígitos</small>
+                        </div>
+
+                        <!-- RUT -->
+                        <div class="mb-3">
+                            <label for="rut" class="form-label">
+                                RUT / ID
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="rut" 
+                                placeholder="Ej: 12345678-9"
+                            >
+                            <small class="error-message" style="display:none;">Formato RUT inválido (ej: 12345678-9)</small>
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="direccion"
+                                placeholder="Calle y número"
+                            >
+                        </div>
+
+                        <!-- Ciudad -->
+                        <div class="mb-3">
+                            <label for="ciudad" class="form-label">Ciudad</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="ciudad"
+                                placeholder="Ej: Santiago"
+                            >
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnGuardar">
+                                <i class="fas fa-save"></i> Guardar Cliente
+                            </button>
+                            <button type="reset" class="btn btn-secondary" id="btnLimpiar">
+                                <i class="fas fa-redo"></i> Limpiar
+                            </button>
+                        </div>
+
+                        <!-- Mensaje de éxito -->
+                        <div id="mensajeExito" class="alert alert-success mt-3" style="display:none;">
+                            <i class="fas fa-check-circle"></i> Cliente guardado exitosamente
+                        </div>
+
+                        <!-- Mensaje de error general -->
+                        <div id="mensajeError" class="alert alert-danger mt-3" style="display:none;">
+                            <i class="fas fa-exclamation-circle"></i> <span id="textoError"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Tabla -->
+        <div class="col-lg-8">
+            <div class="card panel-tabla">
+                <div class="card-header bg-success text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i> Clientes Registrados
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <input 
+                                type="text" 
+                                class="form-control form-control-sm" 
+                                id="buscarCliente"
+                                placeholder="Buscar por nombre..."
+                                style="width: 250px;"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="tablaClientes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 5%">ID</th>
+                                    <th style="width: 15%">Nombre</th>
+                                    <th style="width: 15%">Email</th>
+                                    <th style="width: 12%">Teléfono</th>
+                                    <th style="width: 12%">RUT</th>
+                                    <th style="width: 12%">Ciudad</th>
+                                    <th style="width: 15%">Fecha Registro</th>
+                                    <th style="width: 14%">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTabla">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox"></i> No hay clientes registrados
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">Total de clientes: <strong id="totalClientes">0</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="modalConfirmar" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar a <strong id="nombreClienteEliminar"></strong>?
+                <br><small class="text-muted">Esta acción no se puede deshacer.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/clientes.js' %}"></script>
+{% endblock %}
