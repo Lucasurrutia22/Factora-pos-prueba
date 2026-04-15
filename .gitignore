@@ -1,4 +1,4 @@
-# Python
+# ============ PYTHON ============
 __pycache__/
 *.py[cod]
 *$py.class
@@ -6,22 +6,89 @@ __pycache__/
 .Python
 env/
 venv/
-.env
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 
-# Django
+# ============ DJANGO ============
 *.log
 local_settings.py
 db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+/logs/
 
-# IDE
+# ============ ENVIRONMENT VARIABLES ============
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ============ DATABASE BACKUPS ============
+*.sql
+*.sql.gz
+*.dump
+
+# ============ IDE & EDITOR ============
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ============ OS ============
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Byte-compiled / optimized
-*.pyc
+# ============ PRODUCTION SECRETS ============
+secrets/
+certs/
+.ssl/
+
+# ============ DEVELOPMENT ============
+*.pyo
+dist/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+# ============ CELERY ============
+celerybeat-schedule
+
+# ============ NODE (si usas herramientas de build) ============
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ============ SYSTEM FILES ============
+.env.prod
+.vscode/
+Thumbs.db

@@ -1,0 +1,106 @@
+# ============================================
+# Nginx Configuration
+# Guardar en: /etc/nginx/sites-available/factora-pos
+# Luego hacer: sudo ln -s /etc/nginx/sites-available/factora-pos /etc/nginx/sites-enabled/factora-pos
+# ============================================
+
+upstream factora_pos_app {
+    # Conectar a Gunicorn
+    server 127.0.0.1:8000;
+}
+
+# Redirigir HTTP a HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tu-dominio.com www.tu-dominio.com;
+    
+    location ~ /.well-known/acme-challenge {
+        allow all;
+        root /var/www/certbot;
+    }
+    
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+}
+
+# HTTPS Server
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name tu-dominio.com www.tu-dominio.com;
+
+    # SSL Certificates (Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/tu-dominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tu-dominio.com/privkey.pem;
+
+    # SSL Configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Access & Error Logs
+    access_log /var/log/nginx/factora-pos_access.log;
+    error_log /var/log/nginx/factora-pos_error.log;
+
+    # Client upload size limit
+    client_max_body_size 50M;
+
+    # Dirección web raíz
+    root /var/www/factora-pos;
+
+    # ============ STATIC FILES ============
+    location /static/ {
+        alias /var/www/factora-pos/staticfiles/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # ============ MEDIA FILES ============
+    location /media/ {
+        alias /var/www/factora-pos/media/;
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+
+    # ============ FAVICON & ROBOTS ============
+    location = /favicon.ico {
+        alias /var/www/factora-pos/static/img/favicon.svg;
+        access_log off;
+    }
+
+    location = /robots.txt {
+        alias /var/www/factora-pos/robots.txt;
+        access_log off;
+    }
+
+    # ============ DJANGO APP ============
+    location / {
+        proxy_pass http://factora_pos_app;
+        proxy_set_header Host $server_name;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        
+        # Timeout settings
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+
+        # Buffering
+        proxy_buffering on;
+        proxy_buffer_size 4k;
+        proxy_buffers 8 4k;
+    }
+}
